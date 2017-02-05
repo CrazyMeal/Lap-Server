@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<park xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="parking.xsd">
+	<DateTime>2017-01-23T09:08:54</DateTime>
+	<Name>ANTI</Name>
+	<Status>Open</Status>
+	<Free>0252</Free>
+	<Total>0350</Total>
+</park>
