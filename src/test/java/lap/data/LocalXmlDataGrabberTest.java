@@ -14,7 +14,7 @@ public class LocalXmlDataGrabberTest {
 	@Test
 	public void everythingIsOkay() {
 		List<String> urlList = new ArrayList<String>();
-		String localResourcesFolder = "src\\test\\resources\\localXml\\";
+		String localResourcesFolder = "src/test/resources/localXml/";
 		String urlParking1 = localResourcesFolder + "FR_MTP_ANTI.xml";
 		String urlParking2 = localResourcesFolder + "FR_MTP_ARCT.xml";
 		String urlParking3 = localResourcesFolder + "FR_MTP_COME.xml";
