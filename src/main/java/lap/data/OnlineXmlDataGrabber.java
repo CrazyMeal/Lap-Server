@@ -1,7 +1,10 @@
 package lap.data;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -10,13 +13,13 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -25,57 +28,72 @@ import org.xml.sax.SAXException;
 
 import lap.model.Parking;
 
-public class LocalXmlDataGrabber implements IDataGrabber{
+public class OnlineXmlDataGrabber implements IDataGrabber {
 	
+	final static Logger logger = Logger.getLogger(OnlineXmlDataGrabber.class);
+
 	private List<Document> xmlDocuments;
 	
-	private Source schemaFile;
+	private Schema schema;
 	
 	private DocumentValidationResult validationResult;
-
+	
 	public void getSources(List<String> urlList) {
 		this.xmlDocuments = new ArrayList<Document>();
-		
 		try {
-			
-			for (String url : urlList) {
-				DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-				File fileFromUrl = new File(url);
-				Document document = parser.parse(fileFromUrl);
-				
-				if (url.contains(".")) {
-					String extension = url.substring(url.lastIndexOf("."));
+			for (String urlString : urlList) {
+
+				if (urlString.contains(".")) {
+					String extension = urlString.substring(urlString.lastIndexOf("."));
+					URL url = new URL(urlString);
 					
 					if (extension.equals(".xsd")) {
-						this.schemaFile = new StreamSource(fileFromUrl);
+						HttpURLConnection schemaConn = (HttpURLConnection) url.openConnection();
+						InputStream stream = schemaConn.getInputStream();
+						
+						if (stream.available() > 0) {
+							StreamSource streamSource = new StreamSource(stream);
+							SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+							this.schema = factory.newSchema(streamSource);
+						} else {
+							// Pas de data a lire pour l'url du XSD
+						}
+						
+						stream.close();
 					} else {
-						document.normalize();
-						this.xmlDocuments.add(document);
+						InputStream stream = url.openStream();
+						
+						if (stream.available() > 0) {
+							DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+							Document document = parser.parse(stream);
+							document.normalize();
+							this.xmlDocuments.add(document);
+						} else {
+							// Pas de data a lire pour l'url du XML
+						}
+						
+						stream.close();
 					}
 				}
 			}
-			
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			 e.printStackTrace();
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
 	public DocumentValidationResult validateSources() {
-	    SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-	    
 		try {
-			if (this.schemaFile != null) {
+			if (this.schema != null) {
 				List<Document> validParkingList = new ArrayList<Document>();
 				List<Document> unValidParkingList = new ArrayList<Document>();
 				
-				Schema schema = factory.newSchema(this.schemaFile);
-				
-			    Validator validator = schema.newValidator();
-			    
+			    Validator validator = this.schema.newValidator();
 			    for (Document doc : this.xmlDocuments) {
 			    	try {
 						validator.validate(new DOMSource(doc));
@@ -83,18 +101,21 @@ public class LocalXmlDataGrabber implements IDataGrabber{
 					} catch (SAXException e) {
 						e.printStackTrace();
 						
+						if (unValidParkingList == null) {
+							unValidParkingList = new ArrayList<Document>();
+						}
+						
 						unValidParkingList.add(doc);
 					}
 			    }
 			    
 			    this.validationResult = new DocumentValidationResult(validParkingList, unValidParkingList);
+			    
 			} else {
-				System.out.println("Pas de fichier XSD pour valider la structure XML");
+				logger.warn("Pas de source XSD pour valider la structure XML");
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-		} catch (SAXException e1) {
-			e1.printStackTrace();
 		}
 		
 		return this.validationResult;
@@ -103,7 +124,7 @@ public class LocalXmlDataGrabber implements IDataGrabber{
 	public List<Parking> launchSources() {
 		List<Parking> parkingList = new ArrayList<Parking>();
 		
-		for (Document document : this.xmlDocuments) {
+		for (Document document : this.validationResult.getValidDocumentList()) {
 			NodeList nList = document.getElementsByTagName("park");
 		    
 		    for (int id = 0 ; id < nList.getLength() ; id++) {

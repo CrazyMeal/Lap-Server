@@ -8,7 +8,7 @@ public interface IDataGrabber {
 	
 	void getSources(List<String> urlList);
 	
-	void validateSources();
+	DocumentValidationResult validateSources();
 	
 	List<Parking> launchSources();
 
