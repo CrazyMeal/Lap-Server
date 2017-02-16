@@ -56,7 +56,7 @@ public class OnlineXmlDataGrabber implements IDataGrabber {
 							SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 							this.schema = factory.newSchema(streamSource);
 						} else {
-							// Pas de data a lire pour l'url du XSD
+							logger.error("Pas de data a lire sur l'url du schema XSD - url> " + urlString);
 						}
 						
 						stream.close();
@@ -69,7 +69,7 @@ public class OnlineXmlDataGrabber implements IDataGrabber {
 							document.normalize();
 							this.xmlDocuments.add(document);
 						} else {
-							// Pas de data a lire pour l'url du XML
+							logger.error("Pas de data a lire sur l'url du XML - url> " + urlString);
 						}
 						
 						stream.close();
@@ -143,7 +143,7 @@ public class OnlineXmlDataGrabber implements IDataGrabber {
 					int totalPlaces = Integer.valueOf(eElement.getElementsByTagName("Total").item(0).getTextContent());
 					int display = Integer.valueOf(eElement.getElementsByTagName("Total").item(0).getTextContent());
 					
-					Parking p = new Parking(dateTime, name, status, freePlaces, totalPlaces, display);
+					Parking p = new Parking(name, status, freePlaces, totalPlaces, dateTime, display);
 					parkingList.add(p);
 				}
 		    }

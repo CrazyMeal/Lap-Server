@@ -122,7 +122,7 @@ public class LocalXmlDataGrabber implements IDataGrabber{
 					int totalPlaces = Integer.valueOf(eElement.getElementsByTagName("Total").item(0).getTextContent());
 					int display = Integer.valueOf(eElement.getElementsByTagName("Total").item(0).getTextContent());
 					
-					Parking p = new Parking(dateTime, name, status, freePlaces, totalPlaces, display);
+					Parking p = new Parking(name, status, freePlaces, totalPlaces, dateTime, display);
 					parkingList.add(p);
 				}
 		    }

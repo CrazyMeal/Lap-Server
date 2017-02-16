@@ -1,15 +1,22 @@
 package lap.model;
 
-import java.io.Serializable;
 import java.util.Date;
 
-public class Parking implements Serializable {
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+@Entity
+public class Parking {
 	
-	private static final long serialVersionUID = -40937357323169826L;
-	
-	private Date dataTime;
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	private Long id;
 	
 	private String name;
+	
+	private Date dataTime;
 	
 	private String status;
 	
@@ -18,8 +25,12 @@ public class Parking implements Serializable {
 	private int totalPlaces;
 	
 	private int display;
-	
-	public Parking(Date dataTime, String name, String status, int freePlaces, int totalPlaces, int display) {
+
+	public Parking() {
+		super();
+	}
+
+	public Parking(String name, String status, int freePlaces, int totalPlaces, Date dataTime, int display) {
 		super();
 		this.dataTime = dataTime;
 		this.name = name;
@@ -128,9 +139,4 @@ public class Parking implements Serializable {
 	public void setDisplay(int display) {
 		this.display = display;
 	}
-
-	public static long getSerialversionuid() {
-		return serialVersionUID;
-	}
-
 }

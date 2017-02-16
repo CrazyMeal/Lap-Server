@@ -45,6 +45,6 @@ public class OnlineXmlDataGrabberTest {
 		
 		assertNotNull(parkingList);
 		assertNotEquals(0, parkingList.size());
-		
+		assertEquals(listeUrl.size() - 2, parkingList.size());
 	}
 }
