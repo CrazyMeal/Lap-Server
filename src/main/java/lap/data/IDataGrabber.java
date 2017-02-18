@@ -2,6 +2,7 @@ package lap.data;
 
 import java.util.List;
 
+import lap.model.DocumentValidationResult;
 import lap.model.Parking;
 
 public interface IDataGrabber {

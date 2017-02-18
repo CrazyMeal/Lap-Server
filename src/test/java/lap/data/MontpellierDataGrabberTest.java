@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import lap.model.Parking;
 
-public class OnlineXmlDataGrabberTest {
+public class MontpellierDataGrabberTest {
 
 	@Test
 	public void everythingIsOk() {
@@ -38,7 +38,7 @@ public class OnlineXmlDataGrabberTest {
 		listeUrl.add(url10);
 		listeUrl.add(url1);
 		
-		OnlineXmlDataGrabber grabber = new OnlineXmlDataGrabber();
+		MontpellierDataGrabber grabber = new MontpellierDataGrabber();
 		grabber.getSources(listeUrl);
 		grabber.validateSources();
 		List<Parking> parkingList = grabber.launchSources();

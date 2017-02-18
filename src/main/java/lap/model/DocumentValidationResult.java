@@ -1,4 +1,4 @@
-package lap.data;
+package lap.model;
 
 import java.util.List;
 

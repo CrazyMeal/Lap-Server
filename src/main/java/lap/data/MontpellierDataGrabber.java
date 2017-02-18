@@ -6,7 +6,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.xml.XMLConstants;
@@ -20,17 +19,19 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import lap.model.DocumentValidationResult;
 import lap.model.Parking;
 
-public class OnlineXmlDataGrabber implements IDataGrabber {
+public class MontpellierDataGrabber implements IDataGrabber {
 	
-	final static Logger logger = Logger.getLogger(OnlineXmlDataGrabber.class);
+	final static Logger logger = Logger.getLogger(MontpellierDataGrabber.class);
 
 	private List<Document> xmlDocuments;
 	
@@ -134,16 +135,18 @@ public class OnlineXmlDataGrabber implements IDataGrabber {
 
 					Element eElement = (Element) node;
 					
-					Date dateTime = new Date();
 					eElement.getElementsByTagName("DateTime").item(0).getTextContent();
 					
 					String name = eElement.getElementsByTagName("Name").item(0).getTextContent();
 					String status = eElement.getElementsByTagName("Status").item(0).getTextContent();
 					int freePlaces = Integer.valueOf(eElement.getElementsByTagName("Free").item(0).getTextContent());
 					int totalPlaces = Integer.valueOf(eElement.getElementsByTagName("Total").item(0).getTextContent());
-					int display = Integer.valueOf(eElement.getElementsByTagName("Total").item(0).getTextContent());
 					
-					Parking p = new Parking(name, status, freePlaces, totalPlaces, dateTime, display);
+					DateTime nowDateTime = new DateTime();
+					
+					Parking p = new Parking(freePlaces, totalPlaces, nowDateTime.toDate());
+					p.setName(name);
+					p.setStatus(status);
 					parkingList.add(p);
 				}
 		    }

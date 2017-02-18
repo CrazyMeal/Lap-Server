@@ -2,10 +2,14 @@ package lap.model;
 
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 @Entity
 public class Parking {
@@ -14,51 +18,50 @@ public class Parking {
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
 	
-	private String name;
-	
-	private Date dataTime;
-	
-	private String status;
-	
+	@Column(nullable = false)
 	private int freePlaces;
 	
+	@Column(nullable = false)
 	private int totalPlaces;
 	
-	private int display;
+	@Column(nullable = false, columnDefinition="DATETIME")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date grabTime;
+	
+	@Column(nullable = true)
+	private String status;
+	
+	@Column(nullable = true)
+	private String name;
+	
+	@Column(nullable = true, columnDefinition="DATETIME")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date dateOfDatas;
+	
+	@OneToOne(targetEntity=City.class)
+	private City city;
 
-	public Parking() {
+	public Parking(int freePlaces, int totalPlaces, Date grabTime) {
 		super();
-	}
-
-	public Parking(String name, String status, int freePlaces, int totalPlaces, Date dataTime, int display) {
-		super();
-		this.dataTime = dataTime;
-		this.name = name;
-		this.status = status;
 		this.freePlaces = freePlaces;
 		this.totalPlaces = totalPlaces;
-		this.display = display;
+		this.grabTime = grabTime;
 	}
-
-	@Override
-	public String toString() {
-		return "Parking [dataTime=" + dataTime + ", name=" + name + ", status=" + status + ", freePlaces=" + freePlaces
-				+ ", totalPlaces=" + totalPlaces + ", display=" + display + "]";
-	}
-
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((dataTime == null) ? 0 : dataTime.hashCode());
-		result = prime * result + display;
+		result = prime * result + ((city == null) ? 0 : city.hashCode());
+		result = prime * result + ((dateOfDatas == null) ? 0 : dateOfDatas.hashCode());
 		result = prime * result + freePlaces;
+		result = prime * result + ((grabTime == null) ? 0 : grabTime.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((status == null) ? 0 : status.hashCode());
 		result = prime * result + totalPlaces;
 		return result;
 	}
-
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -68,14 +71,22 @@ public class Parking {
 		if (getClass() != obj.getClass())
 			return false;
 		Parking other = (Parking) obj;
-		if (dataTime == null) {
-			if (other.dataTime != null)
+		if (city == null) {
+			if (other.city != null)
 				return false;
-		} else if (!dataTime.equals(other.dataTime))
+		} else if (!city.equals(other.city))
 			return false;
-		if (display != other.display)
+		if (dateOfDatas == null) {
+			if (other.dateOfDatas != null)
+				return false;
+		} else if (!dateOfDatas.equals(other.dateOfDatas))
 			return false;
 		if (freePlaces != other.freePlaces)
+			return false;
+		if (grabTime == null) {
+			if (other.grabTime != null)
+				return false;
+		} else if (!grabTime.equals(other.grabTime))
 			return false;
 		if (name == null) {
 			if (other.name != null)
@@ -92,29 +103,7 @@ public class Parking {
 		return true;
 	}
 
-	public Date getDataTime() {
-		return dataTime;
-	}
 
-	public void setDataTime(Date dataTime) {
-		this.dataTime = dataTime;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
 
 	public int getFreePlaces() {
 		return freePlaces;
@@ -132,11 +121,46 @@ public class Parking {
 		this.totalPlaces = totalPlaces;
 	}
 
-	public int getDisplay() {
-		return display;
+	public Date getGrabTime() {
+		return grabTime;
 	}
 
-	public void setDisplay(int display) {
-		this.display = display;
+	public void setGrabTime(Date grabTime) {
+		this.grabTime = grabTime;
 	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Date getDateOfDatas() {
+		return dateOfDatas;
+	}
+
+	public void setDateOfDatas(Date dateOfDatas) {
+		this.dateOfDatas = dateOfDatas;
+	}
+
+	public City getCity() {
+		return city;
+	}
+
+	public void setCity(City city) {
+		this.city = city;
+	}
+	
+	
+	
 }
