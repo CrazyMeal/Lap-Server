@@ -1,4 +1,4 @@
-package lap.db;
+package fr.lap.db;
 
 import static org.junit.Assert.*;
 
@@ -10,8 +10,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import lap.db.ParkingRepository;
-import lap.model.Parking;
+import fr.lap.db.ParkingRepository;
+import fr.lap.domain.Parking;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest

@@ -1,4 +1,4 @@
-package lap.model;
+package fr.lap.domain;
 
 import java.util.Date;
 

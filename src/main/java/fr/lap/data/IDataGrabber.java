@@ -1,9 +1,9 @@
-package lap.data;
+package fr.lap.data;
 
 import java.util.List;
 
-import lap.model.DocumentValidationResult;
-import lap.model.Parking;
+import fr.lap.domain.DocumentValidationResult;
+import fr.lap.domain.Parking;
 
 public interface IDataGrabber {
 	

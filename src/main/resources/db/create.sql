@@ -1,0 +1,7 @@
+create table city (id bigint not null auto_increment, name varchar(255), primary key (id))
+create table city_parking_list (city_id bigint not null, parking_list_id bigint not null)
+create table parking (id bigint not null auto_increment, date_of_datas DATETIME, free_places integer not null, grab_time DATETIME not null, name varchar(255), status varchar(255), total_places integer not null, city_id bigint, primary key (id))
+alter table city_parking_list add constraint UK_go0gevuee0bow1dtodl34dosp unique (parking_list_id)
+alter table city_parking_list add constraint FKpxmc11inuun2mswlpylcavl44 foreign key (parking_list_id) references parking (id)
+alter table city_parking_list add constraint FKblity6qq8s3p9ei2qhg54q7wo foreign key (city_id) references city (id)
+alter table parking add constraint FKn87sbnjc8t0nvo2tk3h19iavp foreign key (city_id) references city (id)
