@@ -1,4 +1,4 @@
-package fr.lap.data;
+package fr.lap.data.montpellier;
 
 import static org.junit.Assert.*;
 
@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import fr.lap.data.montpellier.MontpellierDataGrabber;
 import fr.lap.domain.Parking;
 
 public class MontpellierDataGrabberTest {

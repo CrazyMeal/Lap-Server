@@ -1,4 +1,4 @@
-package fr.lap.data;
+package fr.lap.data.montpellier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +26,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import fr.lap.data.IDataGrabber;
 import fr.lap.domain.DocumentValidationResult;
 import fr.lap.domain.Parking;
 

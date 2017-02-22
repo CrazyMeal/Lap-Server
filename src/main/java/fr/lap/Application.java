@@ -2,16 +2,13 @@ package fr.lap;
 
 
 
+import org.apache.log4j.BasicConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
-
-import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties;
 
 import fr.lap.db.ParkingRepository;
 
@@ -21,6 +18,7 @@ public class Application {
 	private static final Logger log = LoggerFactory.getLogger(Application.class);
 
 	public static void main(String[] args) {
+		BasicConfigurator.configure();
 		SpringApplication.run(Application.class);
 	}
 
