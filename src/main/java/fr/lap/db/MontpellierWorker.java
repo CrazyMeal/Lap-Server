@@ -73,7 +73,7 @@ public class MontpellierWorker implements CommandLineRunner {
 				}
 				
 				this.cityRepository.save(montpellierCity);
-				this.parkingRepository.save(parkingList);
+				//this.parkingRepository.save(parkingList);
 			}
 		}
 	}
