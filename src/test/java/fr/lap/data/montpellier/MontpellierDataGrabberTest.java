@@ -1,16 +1,26 @@
 package fr.lap.data.montpellier;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.BasicConfigurator;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-import fr.lap.data.montpellier.MontpellierDataGrabber;
-import fr.lap.domain.Parking;
+import fr.lap.domain.BasicParkingData;
+import fr.lap.domain.ParkingData;
 
 public class MontpellierDataGrabberTest {
+	
+	@BeforeClass
+	public static void init() {
+		BasicConfigurator.configure();
+	}
 
 	@Test
 	public void everythingIsOk() {
@@ -42,10 +52,13 @@ public class MontpellierDataGrabberTest {
 		MontpellierDataGrabber grabber = new MontpellierDataGrabber();
 		grabber.getSources(listeUrl);
 		grabber.validateSources();
-		List<Parking> parkingList = grabber.launchSources();
+		List<ParkingData> parkingDataList = grabber.launchSources();
 		
-		assertNotNull(parkingList);
-		assertNotEquals(0, parkingList.size());
-		assertEquals(listeUrl.size() - 2, parkingList.size());
+		assertNotNull(parkingDataList);
+		assertNotEquals(0, parkingDataList.size());
+		
+		assertTrue(parkingDataList.get(0) instanceof BasicParkingData);
+		
+		assertEquals(listeUrl.size() - 2, parkingDataList.size());
 	}
 }

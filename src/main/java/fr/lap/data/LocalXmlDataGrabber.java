@@ -2,7 +2,11 @@ package fr.lap.data;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.XMLConstants;
@@ -23,8 +27,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import fr.lap.domain.BasicParkingData;
+import fr.lap.domain.City;
 import fr.lap.domain.DocumentValidationResult;
 import fr.lap.domain.Parking;
+import fr.lap.domain.ParkingData;
 
 public class LocalXmlDataGrabber implements IDataGrabber{
 	
@@ -101,8 +108,10 @@ public class LocalXmlDataGrabber implements IDataGrabber{
 		return this.validationResult;
 	}
 
-	public List<Parking> launchSources() {
-		List<Parking> parkingList = new ArrayList<Parking>();
+	public List<ParkingData> launchSources() {
+		List<ParkingData> parkingDataList = new ArrayList<ParkingData>();
+		DateFormat parser = new SimpleDateFormat("yyyy-mm-dd'T'HH:mm:ss");
+		City montpellierCity = new City("Montpellier");
 		
 		for (Document document : this.xmlDocuments) {
 			NodeList nList = document.getElementsByTagName("park");
@@ -114,7 +123,13 @@ public class LocalXmlDataGrabber implements IDataGrabber{
 
 		    		Element eElement = (Element) node;
 					
-					eElement.getElementsByTagName("DateTime").item(0).getTextContent();
+		    		String dateFromFile = eElement.getElementsByTagName("DateTime").item(0).getTextContent();
+					Date dateOfData = null;
+					try {
+						dateOfData = parser.parse(dateFromFile);
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
 					
 					String name = eElement.getElementsByTagName("Name").item(0).getTextContent();
 					String status = eElement.getElementsByTagName("Status").item(0).getTextContent();
@@ -123,15 +138,15 @@ public class LocalXmlDataGrabber implements IDataGrabber{
 					
 					DateTime nowDateTime = new DateTime();
 					
-					Parking p = new Parking(freePlaces, totalPlaces, nowDateTime.toDate());
-					p.setName(name);
-					p.setStatus(status);
-					parkingList.add(p);
+					Parking parking = new Parking(name, montpellierCity, nowDateTime.toDate());
+					
+					BasicParkingData bpd = new BasicParkingData(freePlaces, totalPlaces, status, dateOfData, parking);
+					parkingDataList.add(bpd);
 				}
 		    }
 		}
 		
-		return parkingList;
+		return parkingDataList;
 	}
 
 }

@@ -1,13 +1,14 @@
 package fr.lap.data;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
 
-import fr.lap.domain.Parking;
+import fr.lap.domain.ParkingData;
 
 public class LocalXmlDataGrabberTest {
 	
@@ -33,8 +34,8 @@ public class LocalXmlDataGrabberTest {
 		grabber.getSources(urlList);
 		grabber.validateSources();
 		
-		List<Parking> parkingList = grabber.launchSources();
-		assertNotNull(parkingList);
-		assertEquals(5,parkingList.size());
+		List<ParkingData> parkingDataList = grabber.launchSources();
+		assertNotNull(parkingDataList);
+		assertEquals(5,parkingDataList.size());
 	}
 }

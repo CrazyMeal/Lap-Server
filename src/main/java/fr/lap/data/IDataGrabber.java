@@ -3,7 +3,7 @@ package fr.lap.data;
 import java.util.List;
 
 import fr.lap.domain.DocumentValidationResult;
-import fr.lap.domain.Parking;
+import fr.lap.domain.ParkingData;
 
 public interface IDataGrabber {
 	
@@ -11,6 +11,6 @@ public interface IDataGrabber {
 	
 	DocumentValidationResult validateSources();
 	
-	List<Parking> launchSources();
+	List<ParkingData> launchSources();
 
 }

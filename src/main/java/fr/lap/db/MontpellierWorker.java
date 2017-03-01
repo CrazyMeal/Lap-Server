@@ -12,11 +12,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import fr.lap.data.IDataGrabber;
 import fr.lap.data.montpellier.MontpellierDataGrabber;
+import fr.lap.domain.BasicParkingData;
 import fr.lap.domain.City;
 import fr.lap.domain.Parking;
+import fr.lap.domain.ParkingData;
 
 @Component
 @PropertySource("classpath:data-urls/montpellier.properties")
@@ -29,6 +32,9 @@ public class MontpellierWorker implements CommandLineRunner {
 	
 	@Autowired
 	private CityRepository cityRepository;
+	
+	@Autowired
+	private BasicParkingDataRepository basicParkingDataRepository;
 	
 	@Value("${url.root}")
 	private String rootUrl;
@@ -47,13 +53,13 @@ public class MontpellierWorker implements CommandLineRunner {
 			IDataGrabber grabber = new MontpellierDataGrabber();
 			grabber.getSources(urlList);
 			grabber.validateSources();
-			List<Parking> parkingList = grabber.launchSources();
+			List<ParkingData> parkingDataList = grabber.launchSources();
 			
-			if (parkingList.isEmpty()) {
-				LOGGER.warn("Aucun parking ne peut être integre en BDD");
+			if (parkingDataList.isEmpty()) {
+				LOGGER.warn("Aucun donnee parking ne peut etre integre en BDD");
 			} else {
 				int urlListSize = urlList.size();
-				int parsedParkingListSize = parkingList.size();
+				int parsedParkingListSize = parkingDataList.size();
 				
 				if (urlListSize != parsedParkingListSize) {
 					LOGGER.warn("Toutes les URLs n'ont pas pu etre parsees");
@@ -61,23 +67,35 @@ public class MontpellierWorker implements CommandLineRunner {
 					LOGGER.info("Toutes les URLs ont ete parsees");
 				}
 				
-				City montpellierCity = cityRepository.findByName("Montpellier");
-				
-				if (montpellierCity == null) {
-					LOGGER.info("La ville de Montpellier n'existe pas en base -> Creation");
-					montpellierCity = new City("Montpellier");
+				for (ParkingData parkingData : parkingDataList) {
+					if (parkingData instanceof BasicParkingData) {
+						BasicParkingData bpd = (BasicParkingData) parkingData;
+						this.integrateBasicParkingData(bpd);
+					}
 				}
-				
-				for (Parking parking : parkingList) {
-					parking.setCity(montpellierCity);
-				}
-				
-				this.cityRepository.save(montpellierCity);
-				//this.parkingRepository.save(parkingList);
 			}
 		}
 	}
 	
+	@Transactional
+	private void integrateBasicParkingData(BasicParkingData bpd) {
+		Parking parking = bpd.getParking();
+		
+		if (parking == null) {
+			LOGGER.warn("Pas de parking trouve pour un groupe de donnees {}");
+		} else {
+			City city = parking.getCity();
+			
+			if (city == null) {
+				LOGGER.warn("Pas de ville pour ce parking");
+			} else {
+				this.cityRepository.save(city);
+				this.parkingRepository.save(parking);
+				this.basicParkingDataRepository.save(bpd);
+			}
+		}
+	}
+
 	public List<String> getUrlToWorkWith() {
 		List<String> urlList = new ArrayList<String>();
 		
