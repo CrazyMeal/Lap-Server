@@ -51,7 +51,6 @@ public class BasicParkingData extends ParkingData implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((parking == null) ? 0 : parking.hashCode());
 		return result;
 	}
 
@@ -68,11 +67,6 @@ public class BasicParkingData extends ParkingData implements Serializable {
 			if (other.id != null)
 				return false;
 		} else if (!id.equals(other.id))
-			return false;
-		if (parking == null) {
-			if (other.parking != null)
-				return false;
-		} else if (!parking.equals(other.parking))
 			return false;
 		return true;
 	}

@@ -38,61 +38,89 @@ import fr.lap.domain.Parking;
 import fr.lap.domain.ParkingData;
 
 public class MontpellierDataGrabber implements IDataGrabber {
-	
+
 	final static Logger logger = Logger.getLogger(MontpellierDataGrabber.class);
 
 	private List<Document> xmlDocuments;
-	
+
 	private Schema schema;
 	
 	private DocumentValidationResult validationResult;
-	
+
 	public void getSources(List<String> urlList) {
 		this.xmlDocuments = new ArrayList<Document>();
-		try {
-			for (String urlString : urlList) {
+		for (String urlString : urlList) {
+			
+			try {
+				URL url = new URL(urlString);
+				
+				String extension = urlString.substring(urlString.lastIndexOf("."));
 
-				if (urlString.contains(".")) {
-					String extension = urlString.substring(urlString.lastIndexOf("."));
-					URL url = new URL(urlString);
-					
-					if (extension.equals(".xsd")) {
-						HttpURLConnection schemaConn = (HttpURLConnection) url.openConnection();
-						InputStream stream = schemaConn.getInputStream();
-						
-						if (stream.available() > 0) {
-							StreamSource streamSource = new StreamSource(stream);
-							SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-							this.schema = factory.newSchema(streamSource);
-						} else {
-							logger.error("Pas de data a lire sur l'url du schema XSD - url> " + urlString);
-						}
-						
-						stream.close();
-					} else {
-						InputStream stream = url.openStream();
-						
-						if (stream.available() > 0) {
-							DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-							Document document = parser.parse(stream);
-							document.normalize();
-							this.xmlDocuments.add(document);
-						} else {
-							logger.error("Pas de data a lire sur l'url du XML - url> " + urlString);
-						}
-						
-						stream.close();
-					}
+				if (extension.equals(".xsd")) {
+					this.grabXsdFile(urlString, url);
+				} else {
+					this.grabXmlFile(urlString, url);
 				}
+				
+			} catch (MalformedURLException e) {
+				logger.error(e);
 			}
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
+		}
+	}
+
+	private void grabXmlFile(String urlString, URL url) {
+		try {
+			InputStream stream = url.openStream();
+			
+			if (stream.available() > 0) {
+				DocumentBuilder parser = null;
+				try {
+					parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+				} catch (ParserConfigurationException e) {
+					logger.error(e);
+				}
+				
+				try {
+					Document document = parser.parse(stream);
+					document.normalize();
+					this.xmlDocuments.add(document);
+					
+				} catch (SAXException e) {
+					logger.error(e);
+				}
+				
+			} else {
+				logger.error("Pas de data a lire sur l'url du XML - url> " + urlString);
+			}
+			
+			stream.close();
+			
 		} catch (IOException e) {
-			 e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
+			logger.error(e);
+		}
+	}
+
+	private void grabXsdFile(String urlString, URL url) {
+		
+		try {
+			HttpURLConnection schemaConn = (HttpURLConnection) url.openConnection();
+			InputStream stream = schemaConn.getInputStream();
+			
+			if (stream != null && stream.available() > 0) {
+				StreamSource streamSource = new StreamSource(stream);
+				SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+				try {
+					this.schema = factory.newSchema(streamSource);
+				} catch (SAXException e) {
+					logger.error(e);
+				}
+			} else {
+				logger.error("Pas de data a lire sur l'url du schema XSD - url> " + urlString);
+			}
+			
+			stream.close();
+		} catch (IOException e) {
+			logger.error(e);
 		}
 	}
 
@@ -101,32 +129,32 @@ public class MontpellierDataGrabber implements IDataGrabber {
 			if (this.schema != null) {
 				List<Document> validParkingList = new ArrayList<Document>();
 				List<Document> unValidParkingList = new ArrayList<Document>();
-				
-			    Validator validator = this.schema.newValidator();
-			    for (Document doc : this.xmlDocuments) {
-			    	try {
+
+				Validator validator = this.schema.newValidator();
+				for (Document doc : this.xmlDocuments) {
+					try {
 						validator.validate(new DOMSource(doc));
 						validParkingList.add(doc);
 					} catch (SAXException e) {
 						e.printStackTrace();
-						
+
 						if (unValidParkingList == null) {
 							unValidParkingList = new ArrayList<Document>();
 						}
-						
+
 						unValidParkingList.add(doc);
 					}
-			    }
-			    
-			    this.validationResult = new DocumentValidationResult(validParkingList, unValidParkingList);
-			    
+				}
+
+				this.validationResult = new DocumentValidationResult(validParkingList, unValidParkingList);
+
 			} else {
 				logger.warn("Pas de source XSD pour valider la structure XML");
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		return this.validationResult;
 	}
 
@@ -134,17 +162,17 @@ public class MontpellierDataGrabber implements IDataGrabber {
 		List<ParkingData> parkingDataList = new ArrayList<ParkingData>();
 		DateFormat parser = new SimpleDateFormat("yyyy-mm-dd'T'HH:mm:ss");
 		City montpellierCity = new City("Montpellier");
-		
+
 		for (Document document : this.validationResult.getValidDocumentList()) {
 			NodeList nList = document.getElementsByTagName("park");
-		    
-		    for (int id = 0 ; id < nList.getLength() ; id++) {
-		    	Node node = nList.item(id);
-		    	
-		    	if (node.getNodeType() == Node.ELEMENT_NODE) {
+
+			for (int id = 0; id < nList.getLength(); id++) {
+				Node node = nList.item(id);
+
+				if (node.getNodeType() == Node.ELEMENT_NODE) {
 
 					Element eElement = (Element) node;
-					
+
 					String dateFromFile = eElement.getElementsByTagName("DateTime").item(0).getTextContent();
 					Date dateOfData = null;
 					try {
@@ -152,24 +180,28 @@ public class MontpellierDataGrabber implements IDataGrabber {
 					} catch (ParseException e) {
 						e.printStackTrace();
 					}
-					
+
 					String name = eElement.getElementsByTagName("Name").item(0).getTextContent();
 					String status = eElement.getElementsByTagName("Status").item(0).getTextContent();
 					int freePlaces = Integer.valueOf(eElement.getElementsByTagName("Free").item(0).getTextContent());
 					int totalPlaces = Integer.valueOf(eElement.getElementsByTagName("Total").item(0).getTextContent());
-					
+
 					DateTime nowDateTime = new DateTime();
-					
+
 					Parking parking = new Parking(name, montpellierCity, nowDateTime.toDate());
-					
+
 					BasicParkingData bpd = new BasicParkingData(freePlaces, totalPlaces, status, dateOfData, parking);
 					parkingDataList.add(bpd);
-					
+
 				}
-		    }
+			}
 		}
-		
+
 		return parkingDataList;
+	}
+	
+	public Schema getSchema() {
+		return schema;
 	}
 
 }

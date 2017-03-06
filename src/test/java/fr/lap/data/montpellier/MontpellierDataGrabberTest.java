@@ -3,16 +3,20 @@ package fr.lap.data.montpellier;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.BasicConfigurator;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import fr.lap.domain.BasicParkingData;
+import fr.lap.domain.DocumentValidationResult;
 import fr.lap.domain.ParkingData;
 
 public class MontpellierDataGrabberTest {
@@ -35,9 +39,10 @@ public class MontpellierDataGrabberTest {
 		String url7 = rootUrl + "FR_MTP_GAMB.xml";
 		String url8 = rootUrl + "FR_MTP_GARE.xml";
 		String url9 = rootUrl + "FR_MTP_TRIA.xml";
-		String url10 = rootUrl + "ParkingTpsReel_Description.xsd";
+		String url10 = rootUrl + "FR_MTP_PITO.xml";
+		String url11 = rootUrl + "ParkingTpsReel_Description.xsd";
 		
-		
+		listeUrl.add(url1);
 		listeUrl.add(url2);
 		listeUrl.add(url3);
 		listeUrl.add(url4);
@@ -47,11 +52,12 @@ public class MontpellierDataGrabberTest {
 		listeUrl.add(url8);
 		listeUrl.add(url9);
 		listeUrl.add(url10);
-		listeUrl.add(url1);
+		listeUrl.add(url11);
+		
 		
 		MontpellierDataGrabber grabber = new MontpellierDataGrabber();
 		grabber.getSources(listeUrl);
-		grabber.validateSources();
+		DocumentValidationResult validationResult = grabber.validateSources();
 		List<ParkingData> parkingDataList = grabber.launchSources();
 		
 		assertNotNull(parkingDataList);
@@ -59,6 +65,27 @@ public class MontpellierDataGrabberTest {
 		
 		assertTrue(parkingDataList.get(0) instanceof BasicParkingData);
 		
-		assertEquals(listeUrl.size() - 2, parkingDataList.size());
+		assertNull(validationResult.getUnValidDocumentList());
+		
+		assertEquals(listeUrl.size() - 1, parkingDataList.size());
+	}
+	
+	@Test
+	public void malformedUrlTest() {
+		List<String> listeUrl = new ArrayList<String>();
+		String rootUrl = "htp://datamontpellier3mfr/sites/default/files/ressources/";
+		
+		listeUrl.add(rootUrl);
+		
+		MontpellierDataGrabber grabber = new MontpellierDataGrabber();
+		grabber.getSources(listeUrl);
+		
+	}
+	
+	@Test
+	public void noSchemaForValidationTest() {
+		MontpellierDataGrabber grabber = new MontpellierDataGrabber();
+		
+		grabber.validateSources();
 	}
 }
