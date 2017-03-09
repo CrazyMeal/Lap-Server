@@ -6,6 +6,8 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
+import fr.lap.domain.city.City;
+
 public class ParkingTest {
 	
 	@Test

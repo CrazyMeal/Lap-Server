@@ -13,8 +13,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import fr.lap.db.ParkingRepository;
-import fr.lap.domain.City;
 import fr.lap.domain.Parking;
+import fr.lap.domain.city.City;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -33,7 +33,7 @@ public class ParkingRepositoryTest {
 	
 	@Test
 	public void testOnParkingRepository() {
-		City c = new City();
+		City c = new City("CityTest");
 		DateTime nowDateTime = new DateTime();
 		Parking persistParking = new Parking("Mon parking", c, nowDateTime.toDate());
 		

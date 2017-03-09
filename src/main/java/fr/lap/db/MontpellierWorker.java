@@ -16,10 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import fr.lap.data.IDataGrabber;
 import fr.lap.data.montpellier.MontpellierDataGrabber;
-import fr.lap.domain.BasicParkingData;
-import fr.lap.domain.City;
 import fr.lap.domain.Parking;
-import fr.lap.domain.ParkingData;
+import fr.lap.domain.city.City;
+import fr.lap.domain.data.BasicParkingData;
+import fr.lap.domain.data.ParkingData;
 
 @Component
 @PropertySource("classpath:data-urls/montpellier.properties")

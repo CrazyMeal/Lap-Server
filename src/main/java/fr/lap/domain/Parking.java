@@ -11,6 +11,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import fr.lap.domain.city.City;
+
 @Entity
 public class Parking {
 	
@@ -18,7 +20,7 @@ public class Parking {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	
-	@Column(nullable = true)
+	@Column(nullable = false)
 	private String name;
 	
 	@Column(nullable = false, columnDefinition = "DATETIME")
@@ -27,6 +29,10 @@ public class Parking {
 	
 	@OneToOne(optional = false, targetEntity = City.class)
 	private City city;
+	
+	public Parking() {
+		super();
+	}
 	
 	public Parking(String name, City city, Date lastGrabTime) {
 		super();
@@ -40,11 +46,10 @@ public class Parking {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((city == null) ? 0 : city.hashCode());
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -59,11 +64,6 @@ public class Parking {
 				return false;
 		} else if (!city.equals(other.city))
 			return false;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
 		if (name == null) {
 			if (other.name != null)
 				return false;
@@ -71,7 +71,7 @@ public class Parking {
 			return false;
 		return true;
 	}
-	
+
 	public String getName() {
 		return name;
 	}

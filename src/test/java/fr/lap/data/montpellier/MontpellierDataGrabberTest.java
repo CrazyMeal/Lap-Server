@@ -15,9 +15,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import fr.lap.domain.BasicParkingData;
 import fr.lap.domain.DocumentValidationResult;
-import fr.lap.domain.ParkingData;
+import fr.lap.domain.data.BasicParkingData;
+import fr.lap.domain.data.ParkingData;
 
 public class MontpellierDataGrabberTest {
 	

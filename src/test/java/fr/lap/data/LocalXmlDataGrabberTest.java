@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import fr.lap.domain.ParkingData;
+import fr.lap.domain.data.ParkingData;
 
 public class LocalXmlDataGrabberTest {
 	

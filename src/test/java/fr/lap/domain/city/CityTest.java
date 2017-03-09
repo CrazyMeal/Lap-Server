@@ -1,9 +1,11 @@
-package fr.lap.domain;
+package fr.lap.domain.city;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 import org.junit.Test;
+
+import fr.lap.domain.city.City;
 
 public class CityTest {
 	
@@ -13,9 +15,6 @@ public class CityTest {
 		City simpleCity1 = new City("city");
 		City simpleCity2 = new City("City1");
 		City nullCity1 = null;
-		City complexCity1 = new City(0L, "City2");
-		City complexCity2 = new City(1L, "City2");
-		City complexCity1Bis = new City(0L, "City2");
 		
 		Object nullObject = null;
 		String s = "a String";
@@ -31,12 +30,6 @@ public class CityTest {
 		assertNotEquals(defaultCity1, nullCity1);
 		
 		assertNotEquals(defaultCity1, s);
-		
-		assertNotEquals(defaultCity1, complexCity1);
-		
-		assertNotEquals(complexCity1, complexCity2);
-		
-		assertEquals(complexCity1, complexCity1Bis);
 	}
 	
 	@Test
@@ -58,14 +51,5 @@ public class CityTest {
 		int hash4 = defaultCity1Bis.hashCode();
 		
 		assertEquals(hash3, hash4);
-		
-		// Test id + name constructor
-		City complexCity1 = new City(0L, "City1");
-		City complexCity1Bis = new City(0L, "City1");
-		
-		int hash5 = complexCity1.hashCode();
-		int hash6 = complexCity1Bis.hashCode();
-		
-		assertEquals(hash5, hash6);
 	}
 }

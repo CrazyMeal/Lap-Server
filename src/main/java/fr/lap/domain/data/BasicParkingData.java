@@ -1,4 +1,4 @@
-package fr.lap.domain;
+package fr.lap.domain.data;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -11,6 +11,8 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
+import fr.lap.domain.Parking;
 
 @Entity
 public class BasicParkingData extends ParkingData implements Serializable {
@@ -37,6 +39,10 @@ public class BasicParkingData extends ParkingData implements Serializable {
 	@ManyToOne(optional = false , targetEntity = Parking.class)
 	private Parking parking;
 
+	public BasicParkingData() {
+		super();
+	}
+	
 	public BasicParkingData(int freePlaces, int totalPlaces, String status, Date dateOfData, Parking parking) {
 		super();
 		this.freePlaces = freePlaces;
@@ -64,8 +70,9 @@ public class BasicParkingData extends ParkingData implements Serializable {
 			return false;
 		BasicParkingData other = (BasicParkingData) obj;
 		if (id == null) {
-			if (other.id != null)
+			if (other.id != null) {
 				return false;
+			}
 		} else if (!id.equals(other.id))
 			return false;
 		return true;
@@ -89,5 +96,9 @@ public class BasicParkingData extends ParkingData implements Serializable {
 
 	public Parking getParking() {
 		return parking;
+	}
+	
+	public void setId(Long id) {
+		this.id = id;
 	}
 }

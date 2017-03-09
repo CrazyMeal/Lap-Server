@@ -1,4 +1,4 @@
-package fr.lap.domain;
+package fr.lap.domain.data;
 
 public abstract class ParkingData {
 
