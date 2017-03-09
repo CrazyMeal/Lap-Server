@@ -128,7 +128,7 @@ public class MontpellierDataGrabber implements IDataGrabber {
 		try {
 			if (this.schema != null) {
 				List<Document> validParkingList = new ArrayList<Document>();
-				List<Document> unValidParkingList = new ArrayList<Document>();
+				List<Document> unValidParkingList = null;
 
 				Validator validator = this.schema.newValidator();
 				for (Document doc : this.xmlDocuments) {
