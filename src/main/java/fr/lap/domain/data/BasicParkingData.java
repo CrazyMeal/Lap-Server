@@ -12,7 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import fr.lap.domain.Parking;
+import fr.lap.domain.parking.Parking;
 
 @Entity
 public class BasicParkingData extends ParkingData implements Serializable {
@@ -78,6 +78,12 @@ public class BasicParkingData extends ParkingData implements Serializable {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "BasicParkingData [freePlaces=" + freePlaces + ", totalPlaces=" + totalPlaces + ", status=" + status
+				+ ", dateOfData=" + dateOfData + ", parking=" + parking + "]";
+	}
+
 	public int getFreePlaces() {
 		return freePlaces;
 	}
@@ -97,8 +103,9 @@ public class BasicParkingData extends ParkingData implements Serializable {
 	public Parking getParking() {
 		return parking;
 	}
-	
-	public void setId(Long id) {
-		this.id = id;
+
+	public void setParking(Parking parking) {
+		this.parking = parking;
 	}
+	
 }

@@ -1,4 +1,4 @@
-package fr.lap.domain;
+package fr.lap.domain.parking;
 
 import java.util.Date;
 
@@ -7,7 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -27,7 +27,7 @@ public class Parking {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date lastGrabTime;
 	
-	@OneToOne(optional = false, targetEntity = City.class)
+	@ManyToOne(optional = false, targetEntity = City.class)
 	private City city;
 	
 	public Parking() {
@@ -72,6 +72,11 @@ public class Parking {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "Parking [name=" + name + ", lastGrabTime=" + lastGrabTime + ", city=" + city + "]";
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -79,6 +84,17 @@ public class Parking {
 	public City getCity() {
 		return city;
 	}
-	
+
+	public void setCity(City city) {
+		this.city = city;
+	}
+
+	public Date getLastGrabTime() {
+		return lastGrabTime;
+	}
+
+	public void setLastGrabTime(Date lastGrabTime) {
+		this.lastGrabTime = lastGrabTime;
+	}
 	
 }

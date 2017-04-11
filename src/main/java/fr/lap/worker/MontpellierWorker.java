@@ -1,29 +1,33 @@
-package fr.lap.db;
+package fr.lap.worker;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import fr.lap.data.IDataGrabber;
 import fr.lap.data.montpellier.MontpellierDataGrabber;
-import fr.lap.domain.Parking;
+import fr.lap.db.BasicParkingDataRepository;
+import fr.lap.db.CityRepository;
+import fr.lap.db.ParkingRepository;
 import fr.lap.domain.city.City;
 import fr.lap.domain.data.BasicParkingData;
 import fr.lap.domain.data.ParkingData;
+import fr.lap.domain.parking.Parking;
 
 @Component
 @PropertySource("classpath:data-urls/montpellier.properties")
-public class MontpellierWorker implements CommandLineRunner {
+public class MontpellierWorker {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(MontpellierWorker.class);
 	
@@ -39,11 +43,15 @@ public class MontpellierWorker implements CommandLineRunner {
 	@Value("${url.root}")
 	private String rootUrl;
 	
+	public String getRootUrl() {
+		return rootUrl;
+	}
+
 	@Value("${url.suffix}")
 	private String suffixUrl;
 	
-	@Override
-	public void run(String... arg0) throws Exception {
+	@Scheduled(fixedRate = 5 * 60 * 1000)	
+	public void run() throws Exception {
 		List<String> urlList = this.getUrlToWorkWith();
 		
 		if (urlList.isEmpty()) {
@@ -58,7 +66,7 @@ public class MontpellierWorker implements CommandLineRunner {
 			if (parkingDataList.isEmpty()) {
 				LOGGER.warn("Aucun donnee parking ne peut etre integre en BDD");
 			} else {
-				int urlListSize = urlList.size();
+				int urlListSize = urlList.size() - 1;
 				int parsedParkingListSize = parkingDataList.size();
 				
 				if (urlListSize != parsedParkingListSize) {
@@ -70,6 +78,7 @@ public class MontpellierWorker implements CommandLineRunner {
 				for (ParkingData parkingData : parkingDataList) {
 					if (parkingData instanceof BasicParkingData) {
 						BasicParkingData bpd = (BasicParkingData) parkingData;
+						LOGGER.info(bpd.toString());
 						this.integrateBasicParkingData(bpd);
 					}
 				}
@@ -89,8 +98,25 @@ public class MontpellierWorker implements CommandLineRunner {
 			if (city == null) {
 				LOGGER.warn("Pas de ville pour ce parking");
 			} else {
-				this.cityRepository.save(city);
-				this.parkingRepository.save(parking);
+
+				City montpellierCityFromRepository = this.cityRepository.findByName("Montpellier");
+				if (montpellierCityFromRepository == null) {
+					this.cityRepository.save(city);
+				} else {
+					parking.setCity(montpellierCityFromRepository);
+				}
+				
+				String parkingName = parking.getName();
+				Parking montpellierParkingFromRepository = this.parkingRepository.findByName(parkingName);
+				if (montpellierParkingFromRepository == null) {
+					this.parkingRepository.save(parking);
+				} else {
+					Date lastGrabTime = parking.getLastGrabTime();
+					montpellierParkingFromRepository.setLastGrabTime(lastGrabTime);
+					this.parkingRepository.save(montpellierParkingFromRepository);
+					bpd.setParking(montpellierParkingFromRepository);
+				}
+				
 				this.basicParkingDataRepository.save(bpd);
 			}
 		}
@@ -117,7 +143,7 @@ public class MontpellierWorker implements CommandLineRunner {
 	}
 	
 	@Bean
-	public static PropertySourcesPlaceholderConfigurer propertyConfigInDev() {
+	public static PropertySourcesPlaceholderConfigurer propertiesResolver() {
 		return new PropertySourcesPlaceholderConfigurer();
 	}
 }

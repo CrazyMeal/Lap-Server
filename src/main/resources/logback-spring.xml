@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="15 minutes">
+	<include resource="org/springframework/boot/logging/logback/base.xml" />
+
+	<springProfile name="dev,staging">
+		<logger name="org.springframework.web" level="INFO" additivity="false">
+			<appender-ref ref="CONSOLE" />
+		</logger>
+		<logger name="fr.lap" level="INFO" additivity="false">
+			<appender-ref ref="CONSOLE" />
+		</logger>
+	</springProfile>
+
+	<springProfile name="production">
+		<appender name="FILE"
+			class="ch.qos.logback.core.rolling.RollingFileAppender">
+			<file>/opt/application/lap-server/logs/lap-server.log</file>
+			<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+				<!-- daily rollover -->
+				<fileNamePattern>/opt/application/lap-server/logs/lap-server.%d{yyyy-MM-dd}.log</fileNamePattern>
+
+				<!-- keep 7 days' worth of history capped at 3GB total size -->
+				<maxHistory>7</maxHistory>
+				<totalSizeCap>3GB</totalSizeCap>
+
+			</rollingPolicy>
+
+			<encoder>
+				<pattern>%-4relative [%thread] %-5level %logger{35} - %msg%n
+				</pattern>
+			</encoder>
+		</appender>
+	</springProfile>
+	
+	<root level="INFO">
+		<appender-ref ref="FILE" />
+	</root>
+
+</configuration>

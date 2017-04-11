@@ -32,10 +32,10 @@ import org.xml.sax.SAXException;
 
 import fr.lap.data.IDataGrabber;
 import fr.lap.domain.DocumentValidationResult;
-import fr.lap.domain.Parking;
 import fr.lap.domain.city.City;
 import fr.lap.domain.data.BasicParkingData;
 import fr.lap.domain.data.ParkingData;
+import fr.lap.domain.parking.Parking;
 
 public class MontpellierDataGrabber implements IDataGrabber {
 
