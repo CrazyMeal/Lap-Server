@@ -13,8 +13,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import fr.lap.db.ParkingRepository;
-import fr.lap.domain.Parking;
 import fr.lap.domain.city.City;
+import fr.lap.domain.parking.Parking;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest

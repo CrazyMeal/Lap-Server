@@ -1,4 +1,4 @@
-package fr.lap.domain;
+package fr.lap.domain.parking;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.Test;
 
 import fr.lap.domain.city.City;
+import fr.lap.domain.parking.Parking;
 
 public class ParkingTest {
 	
