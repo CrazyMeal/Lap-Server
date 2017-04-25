@@ -160,7 +160,7 @@ public class MontpellierDataGrabber implements IDataGrabber {
 
 	public List<ParkingData> launchSources() {
 		List<ParkingData> parkingDataList = new ArrayList<ParkingData>();
-		DateFormat parser = new SimpleDateFormat("yyyy-mm-dd'T'HH:mm:ss");
+		DateFormat parser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 		City montpellierCity = new City("Montpellier");
 
 		for (Document document : this.validationResult.getValidDocumentList()) {
