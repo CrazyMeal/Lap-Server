@@ -4,7 +4,7 @@
 	<groupId>fr.crazymeal</groupId>
 	<artifactId>Lap-Server</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Lap-Server</name>
+	<name>Montpellier Mobility - Scrapper</name>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
