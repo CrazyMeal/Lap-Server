@@ -149,7 +149,7 @@ public class MontpellierDataGrabber implements IDataGrabber {
 				log.warn("Pas de source XSD pour valider la structure XML");
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Some IO error encountered", e);
 		}
 
 		return this.validationResult;
