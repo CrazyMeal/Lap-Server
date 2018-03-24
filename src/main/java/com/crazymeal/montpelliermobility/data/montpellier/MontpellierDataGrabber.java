@@ -1,5 +1,28 @@
 package com.crazymeal.montpelliermobility.data.montpellier;
 
+import com.crazymeal.montpelliermobility.data.IDataGrabber;
+import com.crazymeal.montpelliermobility.domain.DocumentValidationResult;
+import com.crazymeal.montpelliermobility.domain.city.City;
+import com.crazymeal.montpelliermobility.domain.data.BasicParkingData;
+import com.crazymeal.montpelliermobility.domain.data.ParkingData;
+import com.crazymeal.montpelliermobility.domain.parking.Parking;
+import lombok.extern.slf4j.Slf4j;
+import org.joda.time.DateTime;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -12,34 +35,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
-
-import com.crazymeal.montpelliermobility.domain.DocumentValidationResult;
-import com.crazymeal.montpelliermobility.domain.data.BasicParkingData;
-import com.crazymeal.montpelliermobility.domain.data.ParkingData;
-import com.crazymeal.montpelliermobility.domain.parking.Parking;
-import org.apache.log4j.Logger;
-import org.joda.time.DateTime;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
-import com.crazymeal.montpelliermobility.data.IDataGrabber;
-import com.crazymeal.montpelliermobility.domain.city.City;
-
+@Slf4j
 public class MontpellierDataGrabber implements IDataGrabber {
-
-	final static Logger logger = Logger.getLogger(MontpellierDataGrabber.class);
 
 	private List<Document> xmlDocuments;
 
@@ -63,7 +60,7 @@ public class MontpellierDataGrabber implements IDataGrabber {
 				}
 				
 			} catch (MalformedURLException e) {
-				logger.error(e);
+				log.error("URL was malformed", e);
 			}
 		}
 	}
@@ -77,7 +74,7 @@ public class MontpellierDataGrabber implements IDataGrabber {
 				try {
 					parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 				} catch (ParserConfigurationException e) {
-					logger.error(e);
+					log.error("Failed to instanciate parser", e);
 				}
 				
 				try {
@@ -86,17 +83,17 @@ public class MontpellierDataGrabber implements IDataGrabber {
 					this.xmlDocuments.add(document);
 					
 				} catch (SAXException e) {
-					logger.error(e);
+					log.error("Failed to parse document", e);
 				}
 				
 			} else {
-				logger.error("Pas de data a lire sur l'url du XML - url> " + urlString);
+				log.error("Pas de data a lire sur l'url du XML - url> " + urlString);
 			}
 			
 			stream.close();
 			
 		} catch (IOException e) {
-			logger.error(e);
+			log.error("Got network trouble", e);
 		}
 	}
 
@@ -112,15 +109,15 @@ public class MontpellierDataGrabber implements IDataGrabber {
 				try {
 					this.schema = factory.newSchema(streamSource);
 				} catch (SAXException e) {
-					logger.error(e);
+					log.error("Parsing of schema failed", e);
 				}
 			} else {
-				logger.error("Pas de data a lire sur l'url du schema XSD - url> " + urlString);
+				log.error("Pas de data a lire sur l'url du schema XSD - url> " + urlString);
 			}
 			
 			stream.close();
 		} catch (IOException e) {
-			logger.error(e);
+			log.error("Couldn't get schema", e);
 		}
 	}
 
@@ -149,7 +146,7 @@ public class MontpellierDataGrabber implements IDataGrabber {
 				this.validationResult = new DocumentValidationResult(validParkingList, unValidParkingList);
 
 			} else {
-				logger.warn("Pas de source XSD pour valider la structure XML");
+				log.warn("Pas de source XSD pour valider la structure XML");
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

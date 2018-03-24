@@ -1,28 +1,16 @@
 package com.crazymeal.montpelliermobility.data.montpellier;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import com.crazymeal.montpelliermobility.domain.DocumentValidationResult;
+import com.crazymeal.montpelliermobility.domain.data.BasicParkingData;
+import com.crazymeal.montpelliermobility.domain.data.ParkingData;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.BasicConfigurator;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import com.crazymeal.montpelliermobility.domain.DocumentValidationResult;
-import com.crazymeal.montpelliermobility.domain.data.BasicParkingData;
-import com.crazymeal.montpelliermobility.domain.data.ParkingData;
+import static org.junit.Assert.*;
 
 public class MontpellierDataGrabberTest {
-	
-	@BeforeClass
-	public static void init() {
-		BasicConfigurator.configure();
-	}
 
 	@Test
 	public void everythingIsOk() {
