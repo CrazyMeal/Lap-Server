@@ -46,7 +46,7 @@ public class DataGrabber {
 	 * @param urlList
 	 */
 	public void loadSources(List<String> urlList) {
-		this.xmlDocuments = new ArrayList<Document>();
+		this.xmlDocuments = new ArrayList<>();
 
 		urlList.forEach((urlString) -> {
 			try {
@@ -73,7 +73,7 @@ public class DataGrabber {
 	public DocumentValidationResult validateSources() {
 		try {
 			if (this.schema != null) {
-				List<Document> validParkingList = new ArrayList<Document>();
+				List<Document> validParkingList = new ArrayList<>();
 				List<Document> unValidParkingList = null;
 
 				final Validator validator = this.schema.newValidator();
@@ -110,7 +110,7 @@ public class DataGrabber {
 	 * @return a list of parking data
 	 */
 	public List<ParkingData> launchSources() {
-		List<ParkingData> parkingDataList = new ArrayList<ParkingData>();
+		List<ParkingData> parkingDataList = new ArrayList<>();
 
 		this.validationResult.getValidDocumentList().forEach(document -> {
 			final NodeList nList = document.getElementsByTagName("park");
@@ -191,6 +191,7 @@ public class DataGrabber {
 				log.error("No data could be scrapped on {}",  url.toString());
 			}
 
+			assert stream != null;
 			stream.close();
 		} catch (IOException e) {
 			log.error("Couldn't get schema", e);
@@ -200,7 +201,7 @@ public class DataGrabber {
 	/**
 	 * Convert a document to a parking data DTO
 	 * @param nList
-	 * @return
+	 * @return parking data
 	 */
 	private ParkingData extractParkingDataFromXml(final NodeList nList) {
 		for (int id = 0; id < nList.getLength(); id++) {
