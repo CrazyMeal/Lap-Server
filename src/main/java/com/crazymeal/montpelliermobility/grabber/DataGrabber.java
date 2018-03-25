@@ -96,7 +96,7 @@ public class DataGrabber {
 				this.validationResult = new DocumentValidationResult(validParkingList, unValidParkingList);
 
 			} else {
-				log.warn("Pas de source XSD pour valider la structure XML");
+				log.warn("No XSD found to validate XML");
 			}
 		} catch (IOException e) {
 			log.error("Some IO error encountered", e);
