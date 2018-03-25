@@ -124,7 +124,7 @@ public class ParkingWorker {
 				log.info("Adding new data for parking -> {}", parking);
 				parkingData.setParking(parking);
 				this.parkingDataRepository.save(parkingData)
-						.subscribe(savedParkingData -> log.info("Saved new parking data", savedParkingData));
+						.subscribe(savedParkingData -> log.info("Saved new parking data -> {}", savedParkingData));
 			});
 	}
 }
