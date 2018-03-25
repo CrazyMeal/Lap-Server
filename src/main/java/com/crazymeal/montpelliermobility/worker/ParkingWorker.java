@@ -22,7 +22,7 @@ import java.util.List;
 @Component
 @PropertySource("classpath:data-urls/parkings.properties")
 @Slf4j
-public class Worker {
+public class ParkingWorker {
 
 	@Autowired
 	private ParkingRepository parkingRepository;
