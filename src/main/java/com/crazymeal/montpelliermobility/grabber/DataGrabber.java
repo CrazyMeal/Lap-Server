@@ -1,11 +1,12 @@
 package com.crazymeal.montpelliermobility.grabber;
 
-import com.crazymeal.montpelliermobility.dto.DocumentValidationResult;
 import com.crazymeal.montpelliermobility.domain.ParkingData;
-import lombok.Getter;
+import com.crazymeal.montpelliermobility.dto.DocumentValidationResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -24,8 +25,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -33,23 +36,23 @@ import java.util.List;
 public class DataGrabber {
 
 	private List<Document> xmlDocuments;
-
-	@Getter
 	private Schema schema;
-	
 	private DocumentValidationResult validationResult;
 
+	private final DateFormat dateParser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+
 	/**
-	 * {@inheritDoc}
+	 * Load sources from given URLs
+	 * @param urlList
 	 */
-	public void getSources(List<String> urlList) {
+	public void loadSources(List<String> urlList) {
 		this.xmlDocuments = new ArrayList<Document>();
 
 		urlList.forEach((urlString) -> {
 			try {
 				URL url = new URL(urlString);
 
-				String extension = urlString.substring(urlString.lastIndexOf("."));
+				final String extension = urlString.substring(urlString.lastIndexOf("."));
 
 				if (extension.equals(".xsd")) {
 					this.grabXsdFile(url);
@@ -64,7 +67,8 @@ public class DataGrabber {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Validate previously downloaded documents with XSD
+	 * @return a DTO with validated and not validated documents
 	 */
 	public DocumentValidationResult validateSources() {
 		try {
@@ -72,7 +76,7 @@ public class DataGrabber {
 				List<Document> validParkingList = new ArrayList<Document>();
 				List<Document> unValidParkingList = null;
 
-				Validator validator = this.schema.newValidator();
+				final Validator validator = this.schema.newValidator();
 
 				for (Document doc : this.xmlDocuments) {
 					try {
@@ -102,16 +106,16 @@ public class DataGrabber {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Convert documents into objects that we can manipulate and save to database
+	 * @return a list of parking data
 	 */
 	public List<ParkingData> launchSources() {
 		List<ParkingData> parkingDataList = new ArrayList<ParkingData>();
-		DateFormat parser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
 		this.validationResult.getValidDocumentList().forEach(document -> {
-			NodeList nList = document.getElementsByTagName("park");
+			final NodeList nList = document.getElementsByTagName("park");
 
-			ParkingData parkingData = MontpellierDataUtils.extractParkingDataFromXml(nList, parser);
+			final ParkingData parkingData = this.extractParkingDataFromXml(nList);
 			if (parkingData != null) {
 				parkingDataList.add(parkingData);
 			}
@@ -120,6 +124,19 @@ public class DataGrabber {
 		return parkingDataList;
 	}
 
+	/**
+	 * Clean fields so we are sure that we are not using strange old data(s)
+	 */
+	public void clean() {
+		this.schema = null;
+		this.validationResult = null;
+		this.xmlDocuments = null;
+	}
+
+	/**
+	 * Download XML file
+	 * @param url
+	 */
 	private void grabXmlFile(URL url) {
 		try {
 			InputStream stream = url.openStream();
@@ -129,7 +146,7 @@ public class DataGrabber {
 				try {
 					parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 				} catch (ParserConfigurationException e) {
-					log.error("Failed to instanciate parser", e);
+					log.error("Failed to instanciate dateParser", e);
 				}
 
 				try {
@@ -142,7 +159,7 @@ public class DataGrabber {
 				}
 
 			} else {
-				log.error("Pas de data a lire sur l'url du XML - url> " + url.toString());
+				log.error("No data could be scrapped on {}", url.toString());
 			}
 
 			stream.close();
@@ -152,6 +169,10 @@ public class DataGrabber {
 		}
 	}
 
+	/**
+	 * Download XSD file (schema)
+	 * @param url
+	 */
 	private void grabXsdFile(URL url) {
 
 		try {
@@ -167,12 +188,51 @@ public class DataGrabber {
 					log.error("Parsing of schema failed", e);
 				}
 			} else {
-				log.error("Pas de data a lire sur l'url du schema XSD - url> " + url.toString());
+				log.error("No data could be scrapped on {}",  url.toString());
 			}
 
 			stream.close();
 		} catch (IOException e) {
 			log.error("Couldn't get schema", e);
 		}
+	}
+
+	/**
+	 * Convert a document to a parking data DTO
+	 * @param nList
+	 * @return
+	 */
+	private ParkingData extractParkingDataFromXml(final NodeList nList) {
+		for (int id = 0; id < nList.getLength(); id++) {
+			final Node node = nList.item(id);
+
+			if (Node.ELEMENT_NODE == node.getNodeType()) {
+
+				final Element eElement = (Element) node;
+
+				final String dateFromFile = eElement.getElementsByTagName("DateTime").item(0).getTextContent();
+				Date dateOfData = null;
+				try {
+					dateOfData = this.dateParser.parse(dateFromFile);
+				} catch (ParseException e) {
+					log.error("Error parsing date", e);
+				}
+
+				final String name = eElement.getElementsByTagName("Name").item(0).getTextContent();
+				final String status = eElement.getElementsByTagName("Status").item(0).getTextContent();
+				final int freePlaces = Integer.valueOf(eElement.getElementsByTagName("Free").item(0).getTextContent());
+				final int totalPlaces = Integer.valueOf(eElement.getElementsByTagName("Total").item(0).getTextContent());
+
+				return ParkingData.builder()
+						.name(name)
+						.status(status)
+						.freePlaces(freePlaces)
+						.totalPlaces(totalPlaces)
+						.dateOfData(dateOfData)
+						.build();
+			}
+		}
+
+		return null;
 	}
 }

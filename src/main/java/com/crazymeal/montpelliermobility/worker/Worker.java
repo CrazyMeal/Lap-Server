@@ -2,10 +2,10 @@ package com.crazymeal.montpelliermobility.worker;
 
 import com.crazymeal.montpelliermobility.domain.Parking;
 import com.crazymeal.montpelliermobility.domain.ParkingData;
+import com.crazymeal.montpelliermobility.dto.DocumentValidationResult;
 import com.crazymeal.montpelliermobility.grabber.DataGrabber;
 import com.crazymeal.montpelliermobility.repository.ParkingDataRepository;
 import com.crazymeal.montpelliermobility.repository.ParkingRepository;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,44 +20,48 @@ import java.util.List;
 
 @ConditionalOnProperty(name = "scrapper.parking.activated")
 @Component
-@PropertySource("classpath:data-urls/montpellier.properties")
+@PropertySource("classpath:data-urls/parkings.properties")
 @Slf4j
-public class MontpellierWorker {
+public class Worker {
 
 	@Autowired
 	private ParkingRepository parkingRepository;
 
 	@Autowired
-	private ParkingDataRepository basicParkingDataRepository;
+	private ParkingDataRepository parkingDataRepository;
 
 	@Autowired
 	private DataGrabber dataGrabber;
 
 	@Value("${url.root}")
-	@Getter
 	private String rootUrl;
 
 	@Value("${url.suffix}")
 	private String suffixUrl;
 
-	@Scheduled(fixedRate = 5 * 60 * 1000)
-	public void run() throws Exception {
+	@Scheduled(cron = "${scrapper.parking.cron}")
+	public void scrapParkingDatas() throws Exception {
 		List<String> urlList = this.getUrlToWorkWith();
 
 		if (urlList.isEmpty()) {
-			log.warn("Liste d'URL a traiter vide.");
+			log.warn("URL list is empty, check properties of application");
 		} else {
-			log.info("Lancement du grab sur la liste d'URL, size={}", urlList.size());
-			dataGrabber.getSources(urlList);
-			dataGrabber.validateSources();
-			List<ParkingData> parkingDataList = dataGrabber.launchSources();
+			log.info("Beggining scrapping for {} URLs", urlList.size());
 
+			dataGrabber.loadSources(urlList);
+
+			final DocumentValidationResult documentValidationResult = dataGrabber.validateSources();
+			if (documentValidationResult.getValidDocumentList().isEmpty()) {
+				log.warn("No document could be validated");
+			}
+
+			final List<ParkingData> parkingDataList = dataGrabber.launchSources();
 			if (parkingDataList.isEmpty()) {
-				log.warn("Aucun donnee parking ne peut etre integre en BDD");
+				log.warn("No data could be loaded");
 			} else {
 				// We don't take into account the schema URL
-				int urlListSize = urlList.size() - 1;
-				int parsedParkingListSize = parkingDataList.size();
+				final int urlListSize = urlList.size() - 1;
+				final int parsedParkingListSize = parkingDataList.size();
 
 				if (urlListSize != parsedParkingListSize) {
 					log.warn("Toutes les URLs n'ont pas pu etre parsees");
@@ -71,28 +75,30 @@ public class MontpellierWorker {
 				});
 			}
 		}
+
+		this.dataGrabber.clean();
 	}
 
 	private List<String> getUrlToWorkWith() {
 		List<String> urlList = new ArrayList<String>();
 
-		if (this.rootUrl != null && this.suffixUrl != null) {
-			String[] suffixList = this.suffixUrl.split(";");
+		final String[] suffixList = this.suffixUrl.split(";");
 
-			for (String suffix : suffixList) {
-				StringBuilder sb = new StringBuilder();
-				sb.append(this.rootUrl);
-				sb.append(suffix);
+		for (String suffix : suffixList) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(this.rootUrl);
+			sb.append(suffix);
 
-				urlList.add(sb.toString());
-			}
-		} else {
-			log.warn("Impossible de construire une liste d'URL. Verifier le contenu du fichier properties");
+			urlList.add(sb.toString());
 		}
 
 		return urlList;
 	}
 
+	/**
+	 * Integrate the new data into database and update parking (create if not existing)
+	 * @param parkingData
+	 */
 	private void integrateBasicParkingData(ParkingData parkingData) {
 
 		this.parkingRepository.findByTechnicalName(parkingData.getName())
@@ -115,7 +121,7 @@ public class MontpellierWorker {
 			.subscribe(parking -> {
 				log.info("Adding new data for parking -> {}", parking);
 				parkingData.setParking(parking);
-				this.basicParkingDataRepository.save(parkingData)
+				this.parkingDataRepository.save(parkingData)
 						.subscribe(savedParkingData -> log.info("Saved new parking data", savedParkingData));
 			});
 		;
