@@ -24,20 +24,22 @@ import java.util.List;
 @Slf4j
 public class ParkingWorker {
 
-	@Autowired
-	private ParkingRepository parkingRepository;
-
-	@Autowired
-	private ParkingDataRepository parkingDataRepository;
-
-	@Autowired
-	private DataGrabber dataGrabber;
+	private final ParkingRepository parkingRepository;
+	private final ParkingDataRepository parkingDataRepository;
+	private final DataGrabber dataGrabber;
 
 	@Value("${url.root}")
 	private String rootUrl;
 
 	@Value("${url.suffix}")
 	private String suffixUrl;
+
+	@Autowired
+	public ParkingWorker(ParkingRepository parkingRepository, ParkingDataRepository parkingDataRepository, DataGrabber dataGrabber) {
+		this.parkingRepository = parkingRepository;
+		this.parkingDataRepository = parkingDataRepository;
+		this.dataGrabber = dataGrabber;
+	}
 
 	@Scheduled(cron = "${scrapper.parking.cron}")
 	public void scrapParkingDatas() throws Exception {
@@ -80,7 +82,7 @@ public class ParkingWorker {
 	}
 
 	private List<String> getUrlToWorkWith() {
-		List<String> urlList = new ArrayList<String>();
+		List<String> urlList = new ArrayList<>();
 
 		final String[] suffixList = this.suffixUrl.split(";");
 
@@ -124,6 +126,5 @@ public class ParkingWorker {
 				this.parkingDataRepository.save(parkingData)
 						.subscribe(savedParkingData -> log.info("Saved new parking data", savedParkingData));
 			});
-		;
 	}
 }
