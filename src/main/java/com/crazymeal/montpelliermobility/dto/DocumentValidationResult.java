@@ -1,8 +1,8 @@
-package com.crazymeal.montpelliermobility.domain;
-
-import java.util.List;
+package com.crazymeal.montpelliermobility.dto;
 
 import org.w3c.dom.Document;
+
+import java.util.List;
 
 public class DocumentValidationResult {
 	

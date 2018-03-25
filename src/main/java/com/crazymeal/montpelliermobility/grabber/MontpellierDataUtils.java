@@ -1,10 +1,7 @@
-package com.crazymeal.montpelliermobility.data.montpellier.utils;
+package com.crazymeal.montpelliermobility.grabber;
 
-import com.crazymeal.montpelliermobility.domain.city.City;
-import com.crazymeal.montpelliermobility.domain.data.BasicParkingData;
-import com.crazymeal.montpelliermobility.domain.parking.Parking;
+import com.crazymeal.montpelliermobility.domain.ParkingData;
 import lombok.extern.slf4j.Slf4j;
-import org.joda.time.DateTime;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -16,7 +13,7 @@ import java.util.Date;
 @Slf4j
 public class MontpellierDataUtils {
 
-	public static BasicParkingData extractParkingDataFromXml(NodeList nList, DateFormat dateFormat, City montpellierCity) {
+	public static ParkingData extractParkingDataFromXml(NodeList nList, DateFormat dateFormat) {
 		for (int id = 0; id < nList.getLength(); id++) {
 			Node node = nList.item(id);
 
@@ -37,11 +34,14 @@ public class MontpellierDataUtils {
 				int freePlaces = Integer.valueOf(eElement.getElementsByTagName("Free").item(0).getTextContent());
 				int totalPlaces = Integer.valueOf(eElement.getElementsByTagName("Total").item(0).getTextContent());
 
-				DateTime nowDateTime = new DateTime();
-
-				Parking parking = new Parking(name, montpellierCity, nowDateTime.toDate());
-
-				return new BasicParkingData(freePlaces, totalPlaces, status, dateOfData, parking);
+				ParkingData data = ParkingData.builder()
+						.name(name)
+						.status(status)
+						.freePlaces(freePlaces)
+						.totalPlaces(totalPlaces)
+						.dateOfData(dateOfData)
+						.build();
+				return data;
 			}
 		}
 

@@ -1,13 +1,10 @@
-package com.crazymeal.montpelliermobility.data.montpellier;
+package com.crazymeal.montpelliermobility.grabber;
 
-import com.crazymeal.montpelliermobility.data.IDataGrabber;
-import com.crazymeal.montpelliermobility.data.montpellier.utils.MontpellierDataUtils;
-import com.crazymeal.montpelliermobility.domain.DocumentValidationResult;
-import com.crazymeal.montpelliermobility.domain.city.City;
-import com.crazymeal.montpelliermobility.domain.data.BasicParkingData;
-import com.crazymeal.montpelliermobility.domain.data.ParkingData;
+import com.crazymeal.montpelliermobility.dto.DocumentValidationResult;
+import com.crazymeal.montpelliermobility.domain.ParkingData;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -31,8 +28,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 @Slf4j
-public class MontpellierDataGrabber implements IDataGrabber {
+public class DataGrabber {
 
 	private List<Document> xmlDocuments;
 
@@ -109,12 +107,11 @@ public class MontpellierDataGrabber implements IDataGrabber {
 	public List<ParkingData> launchSources() {
 		List<ParkingData> parkingDataList = new ArrayList<ParkingData>();
 		DateFormat parser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-		City montpellierCity = new City("Montpellier");
 
 		this.validationResult.getValidDocumentList().forEach(document -> {
 			NodeList nList = document.getElementsByTagName("park");
 
-			BasicParkingData parkingData = MontpellierDataUtils.extractParkingDataFromXml(nList, parser, montpellierCity);
+			ParkingData parkingData = MontpellierDataUtils.extractParkingDataFromXml(nList, parser);
 			if (parkingData != null) {
 				parkingDataList.add(parkingData);
 			}
